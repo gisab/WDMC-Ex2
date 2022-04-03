@@ -92,3 +92,33 @@ OK
 Starting kernel ...
 [...]
 ```
+
+### Make changes persistent
+
+Tuning:
++ bootcmd
++ bootargs
+
+Let's image you want to permanently load the image file from your `sda1` and boot your preferred linus distribution from `sda2`.
+Then you need to configure the variables in this way:
+```
+Marvell>> printenv bootcmd bootargs
+bootcmd=ide reset ;ext2load ide 0:1 0x500000 /uimage ;ext2load ide 0:1 0xa00000 /uinitrd ; bootm 0x500000 0xa00000
+bootargs=root=/dev/sda2 console=ttyS0,115200 max_loop=32 usbcore.autosuspend=-1
+Marvell>>
+```
+In order to do so, you need first to set the variables (note the `\`) and then save them:
+```
+Marvell>> setenv bootcmd ide reset \; ext2load ide 0:1 0x500000 /uimage \;ext2load ide 0:1 0pa00000 /uinitrd \; bootm 0x500000 0xa00000
+Marvell>> printenv bootcmd
+bootcmd=ide reset ; ext2load ide 0:1 0x500000 /uimage ;ext2load ide 0:1 0pa00000 /uinitrd ; bootm 0x500000 0xa00000
+Marvell>> setenv bootargs root=/dev/sda2 console=ttyS0,115200 max_loop=32 usbcore.autosuspend=-1
+Marvell>> printenv bootargs
+bootargs=root=/dev/sda2 console=ttyS0,115200 max_loop=32 usbcore.autosuspend=-1
+Marvell>> saveenv
+Saving Environment to NAND...
+Erasing Nand...
+Writing to Nand... done
+Marvell>>
+```
+
