@@ -2,6 +2,8 @@
 
 ## Keep calm, You can do it !!
 
+![Keep calm, You can do it](KC-YCDI.png)
+
 This is the most tricky part of the guide, but you will understand the benefit and the skill you learnt at the end of the procedure.
 
 ## You need:
