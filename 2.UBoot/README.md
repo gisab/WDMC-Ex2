@@ -37,6 +37,7 @@ All changes you do on enviroment variable and loading new kernel here are not pe
 This is the siplest solution I found.
 
 Plug your HD and create a small partition to store the uimage files; format it as FAT32 or Ext2.
+Copy on this partition the uimage file [uImage-v5.10.109gs](uImage-v5.10.109gs) 
 To enable the SATA connection issue the command:
 ```
 Marvell>> ide reset
@@ -58,7 +59,7 @@ Marvell>> ext2ls ide 0:1
 <DIR>       1024 .
 <DIR>       1024 ..
 <DIR>      12288 lost+found
-         4062561 uimage
+         4062561 uImage-v5.10.109gs
          4830114 uinitrd
              169 readme.txt
          4062565 uimage-5.10.109
@@ -68,7 +69,7 @@ Marvell>>
 
 Load the kernel with the command `extload` or `fatload`:
 ```
-ext2load ide 0:1 0x500000 /uimage 
+ext2load ide 0:1 0x500000 /uImage-v5.10.109gs 
 ```
 Here the `0x500000` is the memory address to which you want uBoot to load your kernel. You can use also `0x2000000`
 Be aware that this loading is not persisently wrote into the NAND.
@@ -78,20 +79,12 @@ Boot the kernel:
 Marvell>> bootm 0x500000
 ## Booting image at 00500000 ...
 ## Booting kernel from Legacy Image at 00500000 ...
-   Image Name:   Kernel-v5.10.109gs
-   Created:      2022-03-30   5:50:20 UTC
+   Image Name:   v5.10-github.com/gisab/WDMC-Ex2
+   Created:      2022-04-03  10:54:59 UTC
    Image Type:   ARM Linux Kernel Image (uncompressed)
-   Data Size:    4062497 Bytes = 3.9 MiB
+   Data Size:    4147193 Bytes = 4 MiB
    Load Address: 00008000
    Entry Point:  00008000
-   Verifying Checksum ... OK
-## Loading init Ramdisk from Legacy Image at 00a00000 ...
-   Image Name:   BusyBox v1.31
-   Created:      2020-04-21  13:35:00 UTC
-   Image Type:   ARM Linux RAMDisk Image (lzma compressed)
-   Data Size:    4830050 Bytes = 4.6 MiB
-   Load Address: 00000000
-   Entry Point:  00000000
    Verifying Checksum ... OK
    Loading Kernel Image ... OK
 OK
