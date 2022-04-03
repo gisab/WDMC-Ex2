@@ -97,7 +97,7 @@ Should you have a different board and you need to discover the pins, use this co
 + connect the _WD Tx_ to the RX _USB to UART_; if the connection is fine, you should see a blikning led on the _USB to UART_
 + last connection is the Rx->Tx
 
-### 3. Power one the WD MC and check the connection
+### 3. Power ON the WD MC and check the connection
 
 The WD MC is able to boot and load linux without any device connected.
 If everything is fine, here you should be able to login on your Device as you would be with an ssh connection.
