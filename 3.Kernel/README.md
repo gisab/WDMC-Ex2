@@ -1,3 +1,3 @@
-# How to compile the kernle by yourself
+# How to compile the kernel by yourself
 
 (to be continued)
