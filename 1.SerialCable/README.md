@@ -29,7 +29,7 @@ Should your board be different, WD adopt the convention of keeping the same draw
 If you are unsecure about which is the right pint, continue to the next step with the soldering and then you can try to connect to the _USB to UART_ device.
 If you used a powered _USB to UART_ you can avoid to solder and connect the +3.3V; as these are TTL signals there is no risk you can burn the serial circuits in case of wrong connection of the other 3 pins (GND, Tx and Rx).
 
-3. solder 3 dupont cables
+## Solder 3 dupont cables
 
 Yes, you need it :roll_eyes:
 
@@ -37,6 +37,27 @@ The simplest tip is to use 3 dupont cable (_male to male_ or _male to female_ ~1
 You shall put the male end in the small hole and then put the tin and solder on it; wait few second the tin is meld and remove the solder blowing as much as you can : )
 One tip; before putting the male pin, you can use pliers and give it a "L form"; in thiw ways, you can have the wire laying parallel to the board and just the pin endpoint entering the hole. You will gain stability during the soldering and furthermore you can leave the dupont cable also after reassembling the device.
 Just sold the GND, the TX and the RX pins; there no need to solder also the +3.3 V (assuming your _USB to UART_ is powered).
+
+## Connect the serial to your PC
+
+Assuming your setup is:
++ (WDMY + dupont cable)
++ "USB to UART"
++ Raspberry PI
+proceed  in this way
+
+### 1. Connect the "USB to UART" to your Raspberry
+
+With `dmesg` you should see a new tty device available. this should be visible in the /dev folder with something like `/dev/ttyUSB0`
+```
+kernel: [   17.620214] usbcore: registered new interface driver ch341
+kernel: [   17.620303] usbserial: USB Serial support registered for ch341-uart
+kernel: [   17.620465] ch341 1-1.4:1.0: ch341-uart converter detected
+kernel: [   17.626101] ch341-uart ttyUSB0: break control not supported, using simulated break
+kernel: [   17.626450] usb 1-1.4: ch341-uart converter now attached to *ttyUSB0*
+```
+
+
 
 [^1]: Just google _UST to UART_ on google or amazon
 ![Example 1](https://www.amazon.de/-/en/Mountaineer-CP2104-USB-Module-Converter-Compatible/dp/B01CYBHM26/ref=sr_1_3?crid=38G2KJ58ADXYF&keywords=usb%2Bauf%2Buart&qid=1648975046&sprefix=usb%2Bto%2Buart%2Caps%2C82&sr=8-3&th=1)
