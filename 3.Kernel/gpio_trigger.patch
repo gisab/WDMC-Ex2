@@ -1,0 +1,133 @@
+diff --git a/drivers/leds/trigger/ledtrig-gpio.c b/drivers/leds/trigger/ledtrig-gpio.c
+index dc64679b1..b260bd0f3 100644
+--- a/drivers/leds/trigger/ledtrig-gpio.c
++++ b/drivers/leds/trigger/ledtrig-gpio.c
+@@ -103,6 +103,7 @@ static ssize_t gpio_trig_inverted_store(struct device *dev,
+ 
+ 	return n;
+ }
++
+ static DEVICE_ATTR(inverted, 0644, gpio_trig_inverted_show,
+ 		gpio_trig_inverted_store);
+ 
+@@ -114,23 +115,10 @@ static ssize_t gpio_trig_gpio_show(struct device *dev,
+ 	return sprintf(buf, "%u\n", gpio_data->gpio);
+ }
+ 
+-static ssize_t gpio_trig_gpio_store(struct device *dev,
+-		struct device_attribute *attr, const char *buf, size_t n)
++static int gpio_trig_gpio_store_value(struct led_classdev *led, struct gpio_trig_data *gpio_data, size_t n, unsigned gpio)
+ {
+-	struct led_classdev *led = led_trigger_get_led(dev);
+-	struct gpio_trig_data *gpio_data = led_trigger_get_drvdata(dev);
+-	unsigned gpio;
+ 	int ret;
+ 
+-	ret = sscanf(buf, "%u", &gpio);
+-	if (ret < 1) {
+-		dev_err(dev, "couldn't read gpio number\n");
+-		return -EINVAL;
+-	}
+-
+-	if (gpio_data->gpio == gpio)
+-		return n;
+-
+ 	if (!gpio_is_valid(gpio)) {
+ 		if (gpio_is_valid(gpio_data->gpio))
+ 			free_irq(gpio_to_irq(gpio_data->gpio), led);
+@@ -142,7 +130,7 @@ static ssize_t gpio_trig_gpio_store(struct device *dev,
+ 			IRQF_ONESHOT | IRQF_SHARED | IRQF_TRIGGER_RISING
+ 			| IRQF_TRIGGER_FALLING, "ledtrig-gpio", led);
+ 	if (ret) {
+-		dev_err(dev, "request_irq failed with error %d\n", ret);
++		dev_err(led->dev, "request_irq failed with error %d\n", ret);
+ 	} else {
+ 		if (gpio_is_valid(gpio_data->gpio))
+ 			free_irq(gpio_to_irq(gpio_data->gpio), led);
+@@ -153,6 +141,27 @@ static ssize_t gpio_trig_gpio_store(struct device *dev,
+ 
+ 	return ret ? ret : n;
+ }
++
++static ssize_t gpio_trig_gpio_store(struct device *dev,
++		struct device_attribute *attr, const char *buf, size_t n)
++{
++	struct led_classdev *led = led_trigger_get_led(dev);
++	struct gpio_trig_data *gpio_data = led_trigger_get_drvdata(dev);
++	unsigned gpio;
++	int ret;
++
++	ret = sscanf(buf, "%u", &gpio);
++	if (ret < 1) {
++		dev_err(dev, "couldn't read gpio number\n");
++		return -EINVAL;
++	}
++
++	if (gpio_data->gpio == gpio)
++		return n;
++	
++	return gpio_trig_gpio_store_value(led, gpio_data, n, gpio);
++}
++
+ static DEVICE_ATTR(gpio, 0644, gpio_trig_gpio_show, gpio_trig_gpio_store);
+ 
+ static struct attribute *gpio_trig_attrs[] = {
+@@ -163,6 +172,42 @@ static struct attribute *gpio_trig_attrs[] = {
+ };
+ ATTRIBUTE_GROUPS(gpio_trig);
+ 
++static void pattern_init(struct led_classdev *led, struct gpio_trig_data *gpio_data)
++{
++	u32 *pattern;
++	unsigned int size = 0;
++	unsigned inverted = 0;
++	int err;
++
++	pattern = led_get_default_pattern(led, &size);
++	if (!pattern)
++		return;
++
++	if (size != 2) {
++		dev_warn(led->dev,
++			 "Expected 2 but got %u values for delays pattern\n",
++			 size);
++		return;
++	}
++
++	inverted = pattern[1];
++	if (inverted < 0 || inverted > 1) {
++		inverted = 0;
++		dev_warn(led->dev,
++			 "GPIO trigger inverted value initialization has invalid value %d\n", inverted);
++	}
++	gpio_data->inverted = inverted;
++	
++	err = gpio_trig_gpio_store_value(led, gpio_data, 0, pattern[0]);
++	if (err < 0)
++		dev_warn(led->dev,
++			 "GPIO trigger gpio pin initialization failed with error %d\n", err);
++	
++	gpio_trig_irq(0, led);
++
++	kfree(pattern);
++}
++
+ static int gpio_trig_activate(struct led_classdev *led)
+ {
+ 	struct gpio_trig_data *gpio_data;
+@@ -176,6 +221,15 @@ static int gpio_trig_activate(struct led_classdev *led)
+ 
+ 	led_set_trigger_data(led, gpio_data);
+ 
++	if (led->flags & LED_INIT_DEFAULT_TRIGGER) {
++		pattern_init(led, gpio_data);
++		/*
++		 * Mark as initialized even on pattern_init() error because
++		 * any consecutive call to it would produce the same error.
++		 */
++		led->flags &= ~LED_INIT_DEFAULT_TRIGGER;
++	}
++
+ 	return 0;
+ }
+ 
