@@ -18,3 +18,5 @@ The repository contains the file ready-to-go with Linux 5.10.109; however there 
 + raid 0,1 and LVM
 + ssh-rescue shell
 
+## References to other public projects
++ This site contains a lot of VUIs (very useful information): https://wd.hides.su/wdnas.el8.website/WDMyCloud-Mirror/Developing/
