@@ -10,8 +10,8 @@ apt install crossbuild-essential-armhf
 
 ## Download the kernel sources and patch the led gpio file
 
-``
-cd 3.Kernel
+```
+cd WDMC-Ex2/3.Kernel
 git clone --depth 1 --branch v5.10.109 git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-stable
 ```
 
