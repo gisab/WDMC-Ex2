@@ -1,0 +1,347 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * Device Tree file for Western Digital My Cloud Expert Series EX2 Ultra
+ * (BVBZ/Ranger Peak)
+ *
+ * Copyright (C) 2020
+ *
+ * Based on the code from:
+ *
+ * Copyright (C) 2019 Evgeny Kolesnikov <evgenyz@gmail.com>
+ * Copyright (C) 2016 Martin Mueller <mm@sig21.net>
+ * Copyright (C) 2013 Gregory CLEMENT <gregory.clement@free-electrons.com>
+ * Copyright (C) 2014 Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+ *
+ */
+
+/dts-v1/;
+#include <dt-bindings/input/input.h>
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/leds/common.h>
+#include "armada-385.dtsi"
+
+/ {
+	model = "My Cloud Expert Series EX2 Ultra (BVBZ/Ranger Peak)";
+	compatible = "wd,mcex2u", "marvell,armada385", "marvell,armada380";
+
+	chosen {
+		stdout-path = "console=ttyS0,115200 root=LABEL=rootfs earlyprintk";
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x00000000 0x40000000>; /* 1024 MB */
+	};
+
+	soc {
+		ranges = <MBUS_ID(0xf0, 0x01) 0 0xf1000000 0x100000
+			  MBUS_ID(0x01, 0x1d) 0 0xfff00000 0x100000
+			  MBUS_ID(0x09, 0x19) 0 0xf1100000 0x10000        /* CESA0: PHYS=0xf1100000 size 64K */
+			  MBUS_ID(0x09, 0x15) 0 0xf1110000 0x10000        /* CESA1: PHYS=0xf1110000 */
+			  MBUS_ID(0x0c, 0x04) 0 0xf1200000 0x100000       /*    BM: PHYS=0xf1200000 size 1M */
+			  MBUS_ID(0x0b, 0x04) 0 0xf1300000 0x100000>;     /*   PNC: PHYS=0xf1300000 size 1M */
+
+		internal-regs {
+			timer@c200 {
+				status = "okay";
+			};
+
+			i2c@11000 {
+				status = "disabled";
+			};
+
+			i2c@11100 {
+				status = "disabled";
+			};
+
+			uart0: serial@12000 {
+				status = "okay";
+			};
+
+			/* Connected to Welltrend 6703F-OG240WT MCU
+			 * which controls power, fan and other things
+			 */
+			uart1: serial@12100 {
+				status = "okay";
+			};
+
+			poweroff@12100 {
+				compatible = "uart-poweroff";
+				reg = <0x12100 0x100>;
+				clocks = <&coreclk 0>;
+				baud = <19200>;
+				cmd = [fa 03 03 01 00 00 fb];
+				status = "okay";
+			};
+
+			restart@12100 {
+				compatible = "uart-restart";
+				reg = <0x12100 0x100>;
+				clocks = <&coreclk 0>;
+				baud = <19200>;
+				cmd = [fa 03 03 02 00 00 fb];
+				override;
+				status = "okay";
+			};
+			
+			pinctrl: pinctrl@18000 {
+				xhci0_vbus_pins: xhci0-vbus-pins {
+					marvell,pins = "mpp26";
+					marvell,function = "gpio";
+				};
+
+				xhci1_vbus_pins: xhci1-vbus-pins {
+					marvell,pins = "mpp27";
+					marvell,function = "gpio";
+				};
+
+				sata0_pins: sata-pins-0 {
+					marvell,pins = "mpp55";
+					marvell,function = "gpio";
+				};
+
+				sata1_pins: sata-pins-1 {
+					marvell,pins = "mpp56";
+					marvell,function = "gpio";
+				};
+
+				sata_leds: sata-leds {
+					marvell,pins = "mpp43", "mpp52", "mpp53", "mpp54", "mpp48", "mpp58";
+					marvell,function = "gpio";
+				};
+
+				btn_pins: btn-pins {
+					marvell,pins = "mpp50";
+					marvell,function = "gpio";
+				};
+			};
+
+			usb0: usb@58000 {
+				status = "okay";
+			};
+
+			eth2: ethernet@34000 {
+				status = "okay";
+				phy = <&phy0>;
+				phy-mode = "sgmii";
+				buffer-manager = <&bm>;
+				bm,pool-long = <0>;
+				bm,pool-short = <1>;
+			};
+
+			mdio: mdio@72004 {
+				phy0: ethernet-phy@0 {
+					/* Init ETH LEDs */
+					marvell,reg-init = <3 16 0 0x101e>;
+					reg = <0>;
+				};
+			};
+
+			cesa: crypto@90000 {
+				status = "okay";
+			};
+
+			rtc: rtc@a3800 {
+				status = "okay";
+			};
+
+			ahci0: sata@a8000 {
+				pinctrl-names = "default";
+				pinctrl-0 = <&sata0_pins>, <&sata1_pins>;
+				status = "okay";
+				#address-cells = <1>;
+				#size-cells = <0>;
+
+				sata0: sata-port@0 {
+					reg = <0>;
+					target-supply = <&reg_sata0>;
+				};
+
+				sata1: sata-port@1 {
+					reg = <1>;
+					target-supply = <&reg_sata1>;
+				};
+
+			};
+
+			bm: bm@c8000 {
+				status = "okay";
+			};
+
+			nand_controller: nand-controller@d0000 {
+				status = "okay";
+
+				nand: nand@0 {
+					reg = <0>;
+					label = "pxa3xx_nand-0";
+					nand-rb = <0>;
+					marvell,nand-keep-config;
+					#marvell,nand-enable-arbiter; //optional
+					nand-on-flash-bbt;
+					nand-ecc-strength = <4>;
+					nand-ecc-step-size = <512>;
+
+					partitions {
+						compatible = "fixed-partitions";
+						#address-cells = <1>;
+						#size-cells = <1>;
+
+						partition@00000000 {
+							label = "U-Boot";
+							reg = <0x00000000 0x00500000>;    /*   5 MB */
+							read-only;
+						};
+
+						partition@00500000 {
+							label = "uImage";
+							reg = <0x00500000 0x00500000>;    /*   5 MB */
+						};
+
+						partition@00a00000 {
+							label = "uRamdisk";
+							reg = <0x00a00000 0x00500000>;    /*   5 MB */
+						};
+							
+						partition@00f00000 {
+							label = "image.cfs";
+							reg = <0x00f00000 0x0b900000>;    /* 185 MB */
+						};
+
+						partition@c800000 {
+							label = "rescue fw";
+							reg = <0x0c800000 0x00f00000>;    /*  15 MB */
+						};
+							
+						partition@d70000 {
+							label = "config";
+							reg = <0x0d700000 0x01400000>;    /*  20 MB */
+						};
+							
+						partition@eb00000 {
+							label = "reserve1";
+							reg = <0x0eb00000 0x00a00000>;    /*  10 MB */
+						};
+							
+						partition@f500000 {
+							label = "reserve2";
+							reg = <0x0f500000 0x00a00000>;    /*  10 MB */
+						};
+					};
+				};
+			};
+
+			usb3_0: usb3@f0000 {
+				usb-phy = <&usb3_0_phy>;
+				status = "okay";
+			};
+
+			usb3_1: usb3@f8000 {
+				usb-phy = <&usb3_1_phy>;
+				status = "okay";
+			};
+		};
+
+		bm_bppi: bm-bppi {
+			status = "okay";
+		};
+	};
+
+	gpio-leds {
+		compatible = "gpio-leds";
+		pinctrl-names = "default";
+		pinctrl-0 = <&sata_leds>;
+
+		sata1-red-led {
+			label = "wdmcex2u:red:hdd1";
+			gpios = <&gpio1 11 GPIO_ACTIVE_HIGH>;
+			default-state = "keep";
+			panic-indicator;
+		};
+		sata2-red-led {
+			label = "wdmcex2u:red:hdd2";
+			gpios = <&gpio1 20 GPIO_ACTIVE_HIGH>;
+			default-state = "keep";
+			panic-indicator;
+		};
+		sata1-blue-led {
+			label = "wdmcex2u:blue:hdd1";
+			gpios = <&gpio1 21 GPIO_ACTIVE_HIGH>;
+			default-state = "keep";
+		};
+		sata2-blue-led {
+			label = "wdmcex2u:blue:hdd2";
+			gpios = <&gpio1 22 GPIO_ACTIVE_HIGH>;
+			default-state = "keep";
+		};
+	};
+
+	gpio-keys {
+		compatible = "gpio-keys";
+		pinctrl-names = "default";
+		pinctrl-0 = <&btn_pins>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		reset {
+			label = "reset";
+			linux,code = <KEY_RESTART>;  // Restart=0x198, Power=0x116
+			gpios = <&gpio1 18 GPIO_ACTIVE_LOW>;
+			debounce-interval = <60>;
+			wakeup-source;
+		};
+	};
+
+	usb3_0_phy: usb3_0_phy {
+		compatible = "usb-nop-xceiv";
+		vcc-supply = <&reg_usb3_0_vbus>;
+	};
+
+	usb3_1_phy: usb3_1_phy {
+		compatible = "usb-nop-xceiv";
+		vcc-supply = <&reg_usb3_1_vbus>;
+	};
+
+	reg_usb3_0_vbus: usb3-vbus0 {
+		compatible = "regulator-fixed";
+		regulator-name = "usb3-vbus0";
+		pinctrl-names = "default";
+		pinctrl-0 = <&xhci0_vbus_pins>;
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		enable-active-high;
+		regulator-always-on;
+		gpio = <&gpio0 26 GPIO_ACTIVE_HIGH>;
+	};
+
+	reg_usb3_1_vbus: usb3-vbus1 {
+		compatible = "regulator-fixed";
+		regulator-name = "usb3-vbus1";
+		pinctrl-names = "default";
+		pinctrl-0 = <&xhci1_vbus_pins>;
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		enable-active-high;
+		regulator-always-on;
+		gpio = <&gpio0 27 GPIO_ACTIVE_HIGH>;
+	};
+
+	reg_sata0: pwr-sata0 {
+		compatible = "regulator-fixed";
+		regulator-name = "pwr_en_sata0";
+		regulator-min-microvolt = <12000000>;
+		regulator-max-microvolt = <12000000>;
+		enable-active-high;
+		regulator-boot-on;
+		gpio = <&gpio1 23 GPIO_ACTIVE_HIGH>;
+	};
+	
+	reg_sata1: pwr-sata1 {
+		compatible = "regulator-fixed";
+		regulator-name = "pwr_en_sata1";
+		regulator-min-microvolt = <12000000>;
+		regulator-max-microvolt = <12000000>;
+		enable-active-high;
+		regulator-boot-on;
+		gpio = <&gpio1 24 GPIO_ACTIVE_HIGH>;
+	};
+};
