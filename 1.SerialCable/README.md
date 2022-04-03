@@ -1,7 +1,5 @@
 # KC-YCDI
 
-## Keep calm, You can do it !!
-
 ![Keep calm, You can do it](KC-YCDI.png)
 
 This is the most tricky part of the guide, but you will understand the benefit and the skill you learnt at the end of the procedure.
@@ -12,4 +10,4 @@ This is the most tricky part of the guide, but you will understand the benefit a
 3. solder 3 dupont cables
 4. connect the serial to another device; I used a Rasperry PI with a "USB to UART" serial adapter.
 
-
+## Disassemble your device
