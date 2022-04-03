@@ -6,7 +6,7 @@ Uboot is the SW code executed by the chip in order to load the kernel.
 It is quite good utility, altough the documentation is not the best asset.
 You can find useful commands here: [Uboot User Manual](https://hub.digi.com/dp/path=/support/asset/u-boot-reference-manual/)
 
-## Press `1`
+### Press `1`
 
 If you want to have access to the Uboot procedure, you shall keep the button `1` pressed during the boot sequence.
 If is important you check the reliability of the serial connection as describer in the [Section 1](../1.SerialCable/README.md)
@@ -22,7 +22,7 @@ Hit any key to stop autoboot:  0
 Marvell>> 
 ```
 
-## `bootcmd` and `bootargs`
+### `bootcmd` and `bootargs`
 
 The boot instruction is hardcoded in the `bootargs` and `bootcmd` variables; to see all variable use `printenv` command; to get help use `help`.
 ```
@@ -32,11 +32,12 @@ Marvell>>
 ```
 All changes you do on enviroment variable and loading new kernel here are not persistent, until you use `saveenv`; feel free to test your configuration.
 
-## Loading your kernel from local hard disk
+### Loading your kernel from local hard disk
 
 This is the siplest solution I found.
 
 Plug your HD and create a small partition to store the uimage files; format it as FAT32 or Ext2.
+Copy on this partition the uimage file [uImage-v5.10.109gs](uImage-v5.10.109gs) 
 To enable the SATA connection issue the command:
 ```
 Marvell>> ide reset
@@ -58,7 +59,7 @@ Marvell>> ext2ls ide 0:1
 <DIR>       1024 .
 <DIR>       1024 ..
 <DIR>      12288 lost+found
-         4062561 uimage
+         4062561 uImage-v5.10.109gs
          4830114 uinitrd
              169 readme.txt
          4062565 uimage-5.10.109
@@ -66,36 +67,71 @@ Marvell>>
 
 ```
 
-Load the kernel with the command `extload` or `fatload`:
+### Load the kernel with the command `extload` or `fatload`:
 ```
-ext2load ide 0:1 0x500000 /uimage 
+ext2load ide 0:1 0x500000 /uImage-v5.10.109gs 
 ```
 Here the `0x500000` is the memory address to which you want uBoot to load your kernel. You can use also `0x2000000`
 Be aware that this loading is not persisently wrote into the NAND.
 
-Boot the kernel:
+### Boot the kernel:
 ```
 Marvell>> bootm 0x500000
 ## Booting image at 00500000 ...
 ## Booting kernel from Legacy Image at 00500000 ...
-   Image Name:   Kernel-v5.10.109gs
-   Created:      2022-03-30   5:50:20 UTC
+   Image Name:   v5.10-github.com/gisab/WDMC-Ex2
+   Created:      2022-04-03  10:54:59 UTC
    Image Type:   ARM Linux Kernel Image (uncompressed)
-   Data Size:    4062497 Bytes = 3.9 MiB
+   Data Size:    4147193 Bytes = 4 MiB
    Load Address: 00008000
    Entry Point:  00008000
-   Verifying Checksum ... OK
-## Loading init Ramdisk from Legacy Image at 00a00000 ...
-   Image Name:   BusyBox v1.31
-   Created:      2020-04-21  13:35:00 UTC
-   Image Type:   ARM Linux RAMDisk Image (lzma compressed)
-   Data Size:    4830050 Bytes = 4.6 MiB
-   Load Address: 00000000
-   Entry Point:  00000000
    Verifying Checksum ... OK
    Loading Kernel Image ... OK
 OK
 
 Starting kernel ...
 [...]
+```
+
+### Make changes persistent
+
+Tuning:
++ bootcmd
++ bootargs
+
+Let's image you want to permanently load the image file `uimage` and `uinitrd` from your `sda1` and boot your preferred linus distribution from `sda2`.
+Then you need to configure the variables in this way:
+```
+Marvell>> printenv bootcmd bootargs
+bootcmd=ide reset ;ext2load ide 0:1 0x500000 /uimage ;ext2load ide 0:1 0xa00000 /uinitrd ; bootm 0x500000 0xa00000
+bootargs=root=/dev/sda2 console=ttyS0,115200 max_loop=32 usbcore.autosuspend=-1
+Marvell>>
+```
+In order to do so, you need first to set the variables (note the `\`) and then save them:
+```
+Marvell>> setenv bootcmd ide reset \; ext2load ide 0:1 0x500000 /uimage \;ext2load ide 0:1 0pa00000 /uinitrd \; bootm 0x500000 0xa00000
+Marvell>> printenv bootcmd
+bootcmd=ide reset ; ext2load ide 0:1 0x500000 /uimage ;ext2load ide 0:1 0pa00000 /uinitrd ; bootm 0x500000 0xa00000
+Marvell>> setenv bootargs root=/dev/sda2 console=ttyS0,115200 max_loop=32 usbcore.autosuspend=-1
+Marvell>> printenv bootargs
+bootargs=root=/dev/sda2 console=ttyS0,115200 max_loop=32 usbcore.autosuspend=-1
+Marvell>> saveenv
+Saving Environment to NAND...
+Erasing Nand...
+Writing to Nand... done
+Marvell>>
+```
+For the kernel `uImage-v5.10.109gs` the `uinitrd` is not necessary (but you can still provide it to uboot) needed and you can tune as follow:
+```
+Marvell>> setenv bootcmd ide reset \; ext2load ide 0:1 0x500000 /uImage-v5.10.109gs \; bootm 0x500000
+Marvell>> printenv bootcmd
+bootcmd=ide reset ; ext2load ide 0:1 0x500000 /uImage-v5.10.109gs ; bootm 0x500000
+Marvell>> setenv bootargs root=/dev/sda2 console=ttyS0,115200 max_loop=32 usbcore.autosuspend=-1
+Marvell>> printenv bootargs
+bootargs=root=/dev/sda2 console=ttyS0,115200 max_loop=32 usbcore.autosuspend=-1
+Marvell>> saveenv
+Saving Environment to NAND...
+Erasing Nand...
+Writing to Nand... done
+Marvell>>
 ```
