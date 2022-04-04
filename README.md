@@ -1,9 +1,10 @@
 # WD My Cloud Ex2 and EX2 Ultra with Debian Bullseye and OMV
 
 Codename: WDMC-Ex2 WDMC-Ex2 Ultra
-Repository: https://github.com/gisab/WDMC-Ex2
 
-Steps to update your Linux Kernel for WD My Cloud Ex2
+Repository: [github/gisab WDMC-Ex2](https://github.com/gisab/WDMC-Ex2)
+
+### Steps to update your Linux Kernel for WD My Cloud Ex2
 
 This Guide will explain you how to update your WD MyCloud Ex2 Device to be able to install any modern OS.
 I tested this procedure with WD MyCloud Ex2, but can be adapted also for MyCloud Ex2 Ultra and (whith some abstraction guideline) to any WD Nas device.
@@ -30,3 +31,6 @@ The repository contains the file ready-to-go with Linux 5.10.109; however there 
 + This site contains a lot of VUIs (very useful information): 
   https://wd.hides.su/wd/Ex2/WDMC-Ex2/
   https://wd.hides.su/wdnas.el8.website/WDMyCloud-Mirror/Developing/
+
+## Credits:
++ @vzhilov https://github.com/vzhilov/WDMC-Ex2-Ultra.git
