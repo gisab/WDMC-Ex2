@@ -1,6 +1,7 @@
 # WD My Cloud Ex2 and EX2 Ultra with Debian Bullseye and OMV
 
 Codename: WDMC-Ex2 WDMC-Ex2 Ultra
+Repository: https://github.com/gisab/WDMC-Ex2
 
 Steps to update your Linux Kernel for WD My Cloud Ex2
 
@@ -26,4 +27,6 @@ The repository contains the file ready-to-go with Linux 5.10.109; however there 
 + ssh-rescue shell
 
 ## References to other public projects
-+ This site contains a lot of VUIs (very useful information): https://wd.hides.su/wdnas.el8.website/WDMyCloud-Mirror/Developing/
++ This site contains a lot of VUIs (very useful information): 
+  https://wd.hides.su/wd/Ex2/WDMC-Ex2/
+  https://wd.hides.su/wdnas.el8.website/WDMyCloud-Mirror/Developing/
