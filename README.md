@@ -34,3 +34,5 @@ The repository contains the file ready-to-go with Linux 5.10.109; however there 
 
 ## Credits:
 + @vzhilov https://github.com/vzhilov/WDMC-Ex2-Ultra.git
++ @Johns-Q https://github.com/Johns-Q/wdmc-gen2.git
++ @Heisath https://github.com/Heisath/wdmc2-kernel.git
