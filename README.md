@@ -1,12 +1,14 @@
 # WDMC-Ex2
 Steps to update your Linux Kernel for WD My Cloud Ex2
 
-This Guide will explain you how to update your WD MyCloud Ex2 Device wo to be able to install any modern OS.
+This Guide will explain you how to update your WD MyCloud Ex2 Device to be able to install any modern OS.
 I tested this procedure with WD MyCloud Ex2, but can be adapted also for MyCloud Ex2 Ultra and (whith some abstraction guideline) to any WD Nas device.
 
 The repository contain the image file for kernel v5.10.109.
 
 There is no need to flash the native UBoot; you can load the new kernel on demand or by default keeping the original fw as it is, for safety and rollback procedure.
+
+The procedure is not disruptive; you don't need to backup your data.
 
 The procedure is articulated in these steps:
 1.  Get access to the serial log on your device (note: this will break the warranty, noting that the the Ex2 is officially no more supported by WD)
