@@ -1,4 +1,7 @@
-# WDMC-Ex2
+# WD My Cloud Ex2 and EX2 Ultra with Debian Bullseye and OMV
+
+Codename: WDMC-Ex2 WDMC-Ex2 Ultra
+
 Steps to update your Linux Kernel for WD My Cloud Ex2
 
 This Guide will explain you how to update your WD MyCloud Ex2 Device to be able to install any modern OS.
