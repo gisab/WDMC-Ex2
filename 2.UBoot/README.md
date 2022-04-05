@@ -8,7 +8,7 @@ You can find useful commands here: [Uboot User Manual](https://hub.digi.com/dp/p
 
 ### Press `1`
 
-If you want to have access to the Uboot procedure, you shall keep the button `1` pressed during the boot sequence.
+If you want to have access to the Uboot procedure, you shall keep the key `1` pressed during the boot sequence.
 If is important you check the reliability of the serial connection as describer in the [Section 1](../1.SerialCable/README.md)
 ```
 Enable HD1
