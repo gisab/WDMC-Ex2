@@ -15,8 +15,8 @@ Enable HD1
 Enable HD2
 Net:   egiga1
 Warning: egiga1 MAC addresses don't match:
-Address in SROM is         00:50:43:02:00:00
-Address in environment is  00:50:43:02:02:00
+Address in SROM is         xx:xx:xx:xx:xx:xx
+Address in environment is  xx:xx:xx:xx:xx:xx
 
 Hit any key to stop autoboot:  0
 Marvell>> 
